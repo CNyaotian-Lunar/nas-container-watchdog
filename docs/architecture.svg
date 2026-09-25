@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="880" viewBox="0 0 1240 880" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif">
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#58a6ff"/>
+    </marker>
+    <marker id="arw2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+
+  <rect width="1240" height="880" fill="#0d1117"/>
+
+  <text x="48" y="58" font-size="27" font-weight="600" fill="#e6edf3">NAS 容器看门狗 · 运行架构</text>
+  <text x="48" y="86" font-size="13.5" fill="#8b949e">用户级 cron 每 2 分钟触发一轮 · flock 保证单实例 · 所有告警经 watchdog-mail.py 发出</text>
+  <line x1="48" y1="106" x2="1192" y2="106" stroke="#21262d" stroke-width="1"/>
+
+  <!-- 列头 -->
+  <text x="48"  y="140" font-size="14" font-weight="600" fill="#58a6ff" letter-spacing="1">触发</text>
+  <text x="372" y="140" font-size="14" font-weight="600" fill="#58a6ff" letter-spacing="1">每轮依次执行五个检查段</text>
+  <text x="944" y="140" font-size="14" font-weight="600" fill="#58a6ff" letter-spacing="1">产出</text>
+
+  <!-- 左列 -->
+  <g>
+    <rect x="48" y="158" width="272" height="64" rx="9" fill="#161b22" stroke="#30363d"/>
+    <text x="68" y="185" font-size="15" font-weight="600" fill="#e6edf3">cron  */2 * * * *</text>
+    <text x="68" y="207" font-size="12.5" fill="#8b949e">用户级 crontab，不需要 root</text>
+
+    <rect x="48" y="244" width="272" height="64" rx="9" fill="#161b22" stroke="#30363d"/>
+    <text x="68" y="271" font-size="15" font-weight="600" fill="#e6edf3">flock 单实例锁</text>
+    <text x="68" y="293" font-size="12.5" fill="#8b949e">抢不到锁 → 安静跳过本轮</text>
+
+    <rect x="48" y="330" width="272" height="64" rx="9" fill="#161b22" stroke="#30363d"/>
+    <text x="68" y="357" font-size="15" font-weight="600" fill="#e6edf3">写心跳文件</text>
+    <text x="68" y="379" font-size="12.5" fill="#8b949e">last_run= / pid=（判活用，别看日志 mtime）</text>
+  </g>
+
+  <line x1="184" y1="222" x2="184" y2="240" stroke="#58a6ff" stroke-width="2" marker-end="url(#arw)"/>
+  <line x1="184" y1="308" x2="184" y2="326" stroke="#58a6ff" stroke-width="2" marker-end="url(#arw)"/>
+  <line x1="320" y1="362" x2="366" y2="362" stroke="#58a6ff" stroke-width="2" marker-end="url(#arw)"/>
+
+  <!-- 中列：五个段 -->
+  <g>
+    <!-- ① -->
+    <rect x="372" y="158" width="540" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <circle cx="400" cy="184" r="13" fill="#1f6feb"/>
+    <text x="400" y="189" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">1</text>
+    <text x="426" y="189" font-size="16" font-weight="600" fill="#e6edf3">容器保活</text>
+    <text x="426" y="211" font-size="12.5" fill="#8b949e">docker inspect 状态；不在跑 → docker start（容器不存在则进 compose 目录 up -d）</text>
+
+    <!-- ② -->
+    <rect x="372" y="246" width="540" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <circle cx="400" cy="272" r="13" fill="#1f6feb"/>
+    <text x="400" y="277" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">2</text>
+    <text x="426" y="277" font-size="16" font-weight="600" fill="#e6edf3">证书热加载</text>
+    <text x="426" y="299" font-size="12.5" fill="#8b949e">fullchain 指纹变化 → 重启使用方；caddy 先试 caddy reload，失败再重启</text>
+
+    <!-- ③ -->
+    <rect x="372" y="334" width="540" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <circle cx="400" cy="360" r="13" fill="#6e7681"/>
+    <text x="400" y="365" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">3</text>
+    <text x="426" y="365" font-size="16" font-weight="600" fill="#e6edf3">QQ 机器人掉线检测 <tspan font-size="12.5" font-weight="400" fill="#6e7681">可选</tspan></text>
+    <text x="426" y="387" font-size="12.5" fill="#8b949e">扫「上次检查以来」的新增日志：最后一条是离线/KickedOffLine ⇒ 判定掉线</text>
+
+    <!-- ④ -->
+    <rect x="372" y="422" width="540" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <circle cx="400" cy="448" r="13" fill="#6e7681"/>
+    <text x="400" y="453" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">4</text>
+    <text x="426" y="453" font-size="16" font-weight="600" fill="#e6edf3">ZFS 存储降级检测 <tspan font-size="12.5" font-weight="400" fill="#6e7681">可选</tspan></text>
+    <text x="426" y="475" font-size="12.5" fill="#8b949e">zfs-health-probe.py 读 zpool status -j → 池/vdev/L2ARC/special/SLOG/热备/msgid</text>
+
+    <!-- ⑤ -->
+    <rect x="372" y="510" width="540" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <circle cx="400" cy="536" r="13" fill="#1f6feb"/>
+    <text x="400" y="541" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">5</text>
+    <text x="426" y="541" font-size="16" font-weight="600" fill="#e6edf3">容器网络自愈</text>
+    <text x="426" y="563" font-size="12.5" fill="#8b949e">running 但 NetworkSettings.Networks 为空 ⇒ docker network connect 挂回原网络</text>
+
+    <!-- 发送通知的箭头（③④⑤都可能发信） -->
+    <line x1="912" y1="196" x2="940" y2="196" stroke="#8b949e" stroke-width="1.6" marker-end="url(#arw2)"/>
+    <line x1="912" y1="372" x2="940" y2="372" stroke="#8b949e" stroke-width="1.6" marker-end="url(#arw2)"/>
+    <line x1="912" y1="460" x2="940" y2="460" stroke="#8b949e" stroke-width="1.6" marker-end="url(#arw2)"/>
+    <line x1="912" y1="548" x2="940" y2="548" stroke="#8b949e" stroke-width="1.6" marker-end="url(#arw2)"/>
+  </g>
+
+  <!-- 右列 -->
+  <g>
+    <rect x="944" y="158" width="248" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <text x="964" y="188" font-size="15" font-weight="600" fill="#e6edf3">事件日志</text>
+    <text x="964" y="211" font-size="12.5" fill="#8b949e">只在有事件时追加，正常时数天不动</text>
+
+    <rect x="944" y="334" width="248" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <text x="964" y="364" font-size="15" font-weight="600" fill="#e6edf3">状态文件</text>
+    <text x="964" y="387" font-size="12.5" fill="#8b949e">签名|等级|时间|池清单（去重用）</text>
+
+    <rect x="944" y="422" width="248" height="76" rx="9" fill="#161b22" stroke="#30363d" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <text x="964" y="452" font-size="15" font-weight="600" fill="#e6edf3">邮件告警</text>
+    <text x="964" y="475" font-size="12.5" fill="#8b949e">watchdog-mail.py → SMTP（发信成功才落 state）</text>
+
+    <rect x="944" y="510" width="248" height="76" rx="9" fill="#161b22" stroke="#30363d"/>
+    <text x="964" y="540" font-size="15" font-weight="600" fill="#e6edf3">告警 / 恢复成对</text>
+    <text x="964" y="563" font-size="12.5" fill="#8b949e">故障发一封、恢复正常再补一封</text>
+  </g>
+
+  <!-- 底部：关键设计 -->
+  <rect x="48" y="634" width="1144" height="196" rx="10" fill="#0f141b" stroke="#21262d"/>
+  <text x="72" y="668" font-size="14" font-weight="600" fill="#58a6ff" letter-spacing="1">四条关键设计（都是被坑过才有的）</text>
+
+  <circle cx="80" cy="700" r="4" fill="#58a6ff"/>
+  <text x="96" y="705" font-size="13" fill="#c9d1d9">去重签名只取「问题集合」，不含计数 / 进度 / 时间 —— 否则盘的错误计数一涨就变成每 2 分钟一封的告警风暴。</text>
+
+  <circle cx="80" cy="734" r="4" fill="#58a6ff"/>
+  <text x="96" y="739" font-size="13" fill="#c9d1d9">发信成功才落去重状态 —— 先记状态再发信的话，SMTP 一挂这条故障就被永久标记为「已通知」，再也不会重报。</text>
+
+  <circle cx="80" cy="768" r="4" fill="#58a6ff"/>
+  <text x="96" y="773" font-size="13" fill="#c9d1d9">期望池清单做基线 —— 池被 export / 未导入 / 盘全掉时它直接从 zpool 输出里消失，只遍历当前池会一律判「无异常」。</text>
+
+  <circle cx="80" cy="802" r="4" fill="#58a6ff"/>
+  <text x="96" y="807" font-size="13" fill="#c9d1d9">网络自愈只挂网、不重启容器 —— docker restart 对「冷启动时网络没就绪」这种情况无效（复用的是坏记录），实测过。</text>
+</svg>

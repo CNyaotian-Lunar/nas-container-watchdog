@@ -1,0 +1,19 @@
+# 运行时产物（脚本自己生成，不入库）
+*.log
+*.heartbeat
+*.lock
+*.state
+*.stamp
+tmp/
+logs/
+
+# 凭据文件（绝不入库：SMTP 授权码等）
+*.env
+*.env.local
+watchdog-mail.env
+
+# 从 NAS 拉取的原始副本（不发布）
+_source/
+
+# 内部交接文档（含本机信息，不对外）
+HANDOVER.md
